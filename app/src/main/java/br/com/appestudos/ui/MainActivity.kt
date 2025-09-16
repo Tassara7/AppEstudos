@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val application = application as AppEstudosApplication
-        val viewModelFactory = ViewModelFactory(application.repository)
+        val viewModelFactory = ViewModelFactory(application.repository, application.aiManager)
 
         enableEdgeToEdge()
         setContent {

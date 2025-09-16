@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -38,7 +39,10 @@ private val LightColorScheme = lightColorScheme(
     onSurface = OnSurfaceLight,
     surfaceVariant = SurfaceVariantLight,
     onSurfaceVariant = OnSurfaceVariantLight,
-    outline = OutlineLight
+    outline = OutlineLight,
+    surfaceBright = SurfaceBrightLight,
+    surfaceDim = SurfaceDimLight,
+    surfaceContainer = SurfaceContainerLight
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -64,13 +68,16 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = OnSurfaceDark,
     surfaceVariant = SurfaceVariantDark,
     onSurfaceVariant = OnSurfaceVariantDark,
-    outline = OutlineDark
+    outline = OutlineDark,
+    surfaceBright = SurfaceBrightDark,
+    surfaceDim = SurfaceDimDark,
+    surfaceContainer = SurfaceContainerDark
 )
 
 @Composable
 fun AppEstudosTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -86,8 +93,10 @@ fun AppEstudosTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            window.statusBarColor = Color.Transparent.toArgb()
+            window.navigationBarColor = Color.Transparent.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
@@ -96,4 +105,44 @@ fun AppEstudosTheme(
         typography = Typography,
         content = content
     )
+}
+
+object AppColors {
+    // Material theme shortcuts
+    val primary @Composable get() = MaterialTheme.colorScheme.primary
+    val onPrimary @Composable get() = MaterialTheme.colorScheme.onPrimary
+    val secondary @Composable get() = MaterialTheme.colorScheme.secondary
+    val onSecondary @Composable get() = MaterialTheme.colorScheme.onSecondary
+    val surface @Composable get() = MaterialTheme.colorScheme.surface
+    val onSurface @Composable get() = MaterialTheme.colorScheme.onSurface
+    val background @Composable get() = MaterialTheme.colorScheme.background
+    val onBackground @Composable get() = MaterialTheme.colorScheme.onBackground
+    val outline @Composable get() = MaterialTheme.colorScheme.outline
+    val error @Composable get() = MaterialTheme.colorScheme.error
+    val onError @Composable get() = MaterialTheme.colorScheme.onError
+    
+    // Custom colors as both property and function for compatibility
+    val success @Composable get() = if (isSystemInDarkTheme()) SuccessDark else SuccessLight
+    val warning @Composable get() = if (isSystemInDarkTheme()) WarningDark else WarningLight
+    
+    @Composable
+    fun success() = if (isSystemInDarkTheme()) SuccessDark else SuccessLight
+    
+    @Composable
+    fun onSuccess() = if (isSystemInDarkTheme()) OnSuccessDark else OnSuccessLight
+    
+    @Composable
+    fun warning() = if (isSystemInDarkTheme()) WarningDark else WarningLight
+    
+    @Composable
+    fun onWarning() = if (isSystemInDarkTheme()) OnWarningDark else OnWarningLight
+    
+    @Composable
+    fun studyModeBackground() = if (isSystemInDarkTheme()) StudyModeBackgroundDark else StudyModeBackground
+    
+    @Composable
+    fun flashcardFront() = if (isSystemInDarkTheme()) FlashcardFrontDark else FlashcardFront
+    
+    @Composable
+    fun flashcardBack() = if (isSystemInDarkTheme()) FlashcardBackDark else FlashcardBack
 }
