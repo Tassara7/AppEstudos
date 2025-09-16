@@ -51,8 +51,8 @@ class StudySessionViewModel(private val repository: AppRepository) : ViewModel()
         viewModelScope.launch {
             val currentCard = uiState.value.currentCard
             if (currentCard != null) {
-                val updatedCard = SpacedRepetitionScheduler.schedule(currentCard, quality)
-                repository.updateFlashcard(updatedCard)
+                val scheduleResult = SpacedRepetitionScheduler.schedule(currentCard, quality)
+                repository.updateFlashcard(scheduleResult.flashcard)
             }
             goToNextCard()
         }

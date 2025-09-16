@@ -25,4 +25,10 @@ interface FlashcardDao {
 
     @Query("SELECT * FROM flashcards WHERE deckId = :deckId ORDER BY createdAt ASC")
     fun getFlashcardsForDeck(deckId: Long): Flow<List<Flashcard>>
+
+    @Query("SELECT * FROM flashcards WHERE nextReviewDate <= :currentDate ORDER BY nextReviewDate ASC")
+    fun getFlashcardsForReview(currentDate: Long): Flow<List<Flashcard>>
+
+    @Query("SELECT COUNT(*) FROM flashcards WHERE deckId = :deckId AND nextReviewDate <= :currentDate")
+    fun getReviewCountForDeck(deckId: Long, currentDate: Long): Flow<Int>
 }

@@ -1,0 +1,266 @@
+## 🏗️ PROJETO EM DESENVOLVIMENTO - PLATAFORMA DE APRENDIZAGEM INTELIGENTE
+
+### ✅ ARQUITETURA IMPLEMENTADA
+- **Linguagem**: 100% Kotlin
+- **Padrão**: MVVM (Model-View-ViewModel) rigorosamente seguido
+- **UI**: 100% Jetpack Compose com Material Design 3
+- **Temas**: Suporte completo a tema claro/escuro
+- **Código**: Limpo, sem comentários, bem organizado em pacotes
+- **Compilação**: 100% funcional e testada
+
+### ✅ ESTRUTURA DE DADOS COMPLETA
+1. **Modelos**: Flashcard, Deck, FlashcardType, StudyLocation, MediaContent
+2. **Banco de Dados**: Room com SQLite, DAOs implementados
+3. **Repositórios**: AppRepository com implementação MVVM
+4. **Conversores**: Suporte a tipos complexos (Date, List, etc.)
+
+### ✅ INTERFACES DE USUÁRIO CRIADAS
+1. **Frente e Verso**: UI completa para criação e edição
+2. **Cloze/Omissão**: Interface para lacunas de texto
+3. **Digite a Resposta**: UI para respostas abertas
+4. **Múltipla Escolha**: Interface para quizzes
+5. **Importação/Exportação**: Sistema de backup completo
+6. **Navegação**: AppNavigation com todas as rotas
+
+### ✅ SISTEMA GPS - ESTRUTURA
+- **7 Localizações Favoritas**: Modelo de dados implementado
+- **LocationService**: Serviço básico de localização criado
+- **Relatórios por Local**: UI de analytics implementada
+- **Geofencing**: Estrutura básica preparada
+
+### ✅ REPETIÇÃO ESPAÇADA - ALGORITMO
+- **SpacedRepetitionScheduler**: Algoritmo SM-2 completo (310 linhas)
+- **ScheduleResult**: Estrutura de dados para resultados
+- **Fatores de Ajuste**: Por tipo de flashcard e localização
+- **Cálculos Avançados**: Ease factor, intervalos, dificuldade
+
+### ⚠️ ASSISTENTE DE ESTUDOS IA - ESTRUTURA CRIADA
+- **AIManager**: Classe para gerenciar múltiplos serviços
+- **GoogleAIService**: Estrutura para Google AI Studio
+- **GroqService**: Estrutura para Groq API
+- **Sistema de Fallback**: Preparado mas não implementado
+- **❌ Funcionalidade IA**: Apenas estrutura, sem implementação real
+
+### ✅ VIEWMODELS E ESTADOS
+- **DeckListViewModel**: Gerenciamento de decks
+- **AddEditDeckViewModel**: Criação/edição de decks
+- **FlashcardListViewModel**: Lista de flashcards
+- **AddEditFlashcardViewModel**: Criação/edição de cards
+- **StudySessionViewModel**: Preparado para sessões de estudo
+- **UnifiedStudyViewModel**: Interface unificada de estudo
+- **AnalyticsViewModel**: Relatórios e estatísticas
+
+### ❌ FUNCIONALIDADES PRINCIPAIS NÃO IMPLEMENTADAS
+
+#### Sistema de Estudo:
+- [ ] **Executar sessões de flashcards**: Lógica de estudo não funcional
+- [ ] **Validação de respostas**: IA não implementada
+- [ ] **Sistema de pontuação**: Apenas estrutura
+- [ ] **Progressão de estudo**: Não funcional
+
+#### Inteligência Artificial:
+- [ ] **Geração automática de conteúdo**: Não implementada
+- [ ] **Validação semântica**: Estrutura criada, sem funcionalidade
+- [ ] **Dicas progressivas**: Não implementadas
+- [ ] **Chat educacional**: Apenas UI preparada
+- [ ] **Recomendações**: Algoritmos não implementados
+
+#### GPS Avançado:
+- [ ] **Geofencing funcional**: Apenas estrutura
+- [ ] **Rotação inteligente**: Lógica não implementada
+- [ ] **Analytics por local**: Dados simulados
+
+#### Multimídia:
+- [ ] **Imagens/Áudio real**: Apenas estrutura de dados
+- [ ] **LaTeX rendering**: Não implementado
+- [ ] **Editor rico funcional**: UI básica apenas
+
+### 📊 STATUS ATUAL DO PROJETO
+
+#### ✅ Implementado (Estrutural):
+- Arquitetura MVVM completa
+- Banco de dados Room funcional
+- Interfaces de usuário (Jetpack Compose)
+- Navegação entre telas
+- Importação/exportação de dados
+- Algoritmo de repetição espaçada
+- Sistema de temas e cores
+
+#### ⚠️ Parcialmente Implementado:
+- Sistema de localização (estrutura básica)
+- Integração com IA (apenas interfaces)
+- Sistema de estudo (UI sem lógica)
+- Analytics (apenas visualização)
+
+#### ❌ Não Implementado:
+- Funcionalidades de IA real
+- Execução de sessões de estudo
+- Validação inteligente de respostas
+- Geofencing funcional
+- Servidor Ktor
+- Firebase
+- Recursos multimídia funcionais
+- Testes automatizados
+
+### 🎯 PRÓXIMOS PASSOS NECESSÁRIOS
+
+#### Prioridade Alta:
+1. **Implementar lógica de estudo**: Fazer os flashcards funcionarem
+2. **Conectar IA real**: Implementar chamadas para APIs
+3. **Sistema de pontuação**: Validação e feedback de respostas
+4. **Geofencing funcional**: GPS real com detecção de localização
+
+#### Prioridade Média:
+5. **Recursos multimídia**: Imagens, áudio, LaTeX
+6. **Servidor backend**: API REST com Ktor
+7. **Sincronização**: Firebase para backup na nuvem
+8. **Testes**: Unitários e de integração
+
+#### Prioridade Baixa:
+9. **Chat educacional**: Tutor IA conversacional
+10. **Analytics avançados**: Relatórios detalhados
+11. **Recursos sociais**: Compartilhamento e colaboração
+
+### 📋 RESUMO TÉCNICO
+
+#### O que funciona:
+- ✅ Criação e edição de decks e flashcards
+- ✅ Navegação entre telas
+- ✅ Banco de dados local
+- ✅ Importação/exportação
+- ✅ Interface visual completa
+
+#### O que não funciona:
+- ❌ Estudar com os flashcards criados
+- ❌ Inteligência artificial
+- ❌ GPS/localização funcional
+- ❌ Validação de respostas
+- ❌ Sistema de progressão
+
+### 🔍 AVALIAÇÃO REALISTA
+
+**Progresso atual**: ~40% do projeto especificado
+**Tempo estimado para conclusão**: 2-3 semanas adicionais
+**Complexidade restante**: Alta (IA, GPS, lógica de estudo)
+
+**Conclusão**: O projeto tem uma excelente base arquitetural e visual, mas precisa de implementação das funcionalidades principais para ser funcional como aplicativo educacional.
+
+Prompt:
+
+A partir de agora, você atuará como um programador profissional especialista em Kotlin, Android, MVVM e Jetpack Compose. Sua tarefa é desenvolver um aplicativo para um trabalho de faculdade.
+
+
+Siga rigorosamente as seguintes regras durante todo o desenvolvimento:
+
+
+1. *Arquitetura do Projeto:* O projeto deve ser desenvolvido utilizando a arquitetura MVVM (Model-View-ViewModel).
+
+2. *UI Toolkit:* A interface do usuário deve ser construída inteiramente com Jetpack Compose.
+
+3. *Regras de Código:* O código NUNCA deverá conter comentários.
+
+4. *Formato de Entrega:* Sempre que houver qualquer alteração em uma classe ou arquivo, você deve me enviar o conteúdo completo e atualizado do arquivo. Não envie apenas trechos ou diffs.
+
+5. *Organização do Projeto:* Crie novos pacotes e classes sempre que for necessário para manter o código bem organizado e limpo. Para cada novo arquivo criado, especifique o tipo (ex: "Kotlin Class", "Kotlin File") e sua localização exata no projeto (ex: br.com.meuprojeto.ui.viewmodel).
+
+6. *Foco em Performance:* O código deve ser otimizado para garantir uma experiência de uso fluida em dispositivos móveis. Utilize as melhores práticas de performance do Jetpack Compose e do desenvolvimento Android em geral (como o uso de Coroutines para tarefas assíncronas).
+
+
+--- INÍCIO DA DESCRIÇÃO DO PROJETO ---
+
+
+### *Descrição Detalhada do Projeto: Plataforma de Aprendizagem Inteligente*
+
+
+#### *Resumo do Projeto*
+
+
+O objetivo é criar uma plataforma de aprendizagem para Android que ajuda os estudantes a reter informações de forma mais eficiente. O aplicativo será focado em um sistema avançado de flashcards, que utiliza técnicas de repetição espaçada e recordação ativa. Além disso, o app usará o GPS para contextualizar o estudo e uma Inteligência Artificial para personalizar a experiência do usuário.
+
+
+#### *Funcionalidades Principais*
+
+
+1. *Sistema Avançado de Flashcards*
+
+O aplicativo deve suportar quatro tipos diferentes de flashcards:
+
+* *Frente e Verso:* O formato tradicional, mas com suporte a textos formatados (ricos), imagens e áudio.
+
+* *Omissão de Palavras (Cloze):* Flashcards onde o usuário precisa preencher lacunas no texto.
+
+* *Digite a Resposta:* O usuário digita a resposta em texto livre, e uma IA fará a validação "semântica" (vai entender o significado da resposta, não apenas se o texto é idêntico).
+
+* *Múltipla Escolha:* Um sistema de quiz onde a IA pode gerar as alternativas erradas (distratores) de forma inteligente.
+
+
+2. *Sistema GPS Inteligente*
+
+* O usuário poderá favoritar até 7 localizações diferentes.
+
+* O app deve usar Geofencing para detectar quando o usuário entra ou sai desses locais.
+
+* O sistema de repetição espaçada deve ser inteligente e evitar repetir o mesmo conteúdo excessivamente quando o usuário estiver na mesma localização.
+
+* O aplicativo deve gerar relatórios de desempenho, mostrando em qual local o usuário é mais produtivo.
+
+
+3. *Repetição Espaçada Avançada com IA*
+
+* A repetição espaçada é uma funcionalidade central do aplicativo.
+
+* Vamos usar um algoritmo (baseado no SM-2) aprimorado com IA para otimizar os intervalos de revisão.
+
+* A IA irá analisar o padrão de aprendizado de cada usuário, o local e o horário para sugerir os melhores momentos para revisar cada conteúdo.
+
+
+#### *Assistente de Estudos com Inteligência Artificial (IA)*
+
+
+O grande diferencial do projeto é um assistente de estudos com IA.
+
+* *Geração de Conteúdo:* A IA deve ser capaz de criar flashcards de qualquer um dos quatro tipos sobre um determinado tópico e nível de dificuldade.
+
+* *Validação de Respostas:* A IA validará respostas de texto livre, dando um feedback completo ao estudante.
+
+* *Sistema de Dicas:* A IA deve gerar dicas progressivas e inteligentes caso o usuário erre uma questão, sem entregar a resposta diretamente.
+
+* *Recomendações Personalizadas:* O assistente analisará o desempenho do usuário para recomendar quais tópicos estudar, qual tipo de flashcard usar e a duração ideal da sessão de estudos.
+
+* *Chat Educacional:* Haverá um chat onde o usuário poderá conversar com um "tutor IA" para tirar dúvidas sobre os conteúdos.
+
+* *Múltiplos Provedores de IA:* O sistema deve ser capaz de usar diferentes serviços de IA (como Google AI Studio e Groq) e ter um sistema de fallback, ou seja, se um serviço falhar, ele tenta o próximo. Deve-se priorizar o uso dos serviços gratuitos.
+
+
+#### *Arquitetura e Requisitos Técnicos*
+
+
+* *Linguagem:* Kotlin é obrigatório, tanto para o aplicativo Android quanto para o servidor.
+
+* *Interface (UI):* A interface deve ser feita 100% com Jetpack Compose, com alta qualidade visual (Material Design 3), animações e suporte aos temas claro e escuro.
+
+* *Arquitetura:* O app deve seguir o padrão MVVM.
+
+* *Armazenamento Híbrido:* O projeto terá um sistema de armazenamento em três camadas:
+
+1. *Local:* Banco de dados SQLite/Room para que o app funcione offline.
+
+2. *Servidor Kotlin/Ktor:* Um servidor próprio para backup e compartilhamento de flashcards.
+
+3. *Nuvem (Firebase):* Para recursos sociais e colaboração em tempo real.
+
+* *Estratégia "Local First":* As operações básicas devem funcionar perfeitamente offline.
+
+
+#### *Servidor Backend (Obrigatório)*
+
+
+* É obrigatório desenvolver um servidor web com API REST usando Kotlin e a framework Ktor.
+
+* A API deve permitir criar, listar, atualizar e remover flashcards, além de permitir o compartilhamento de conteúdo entre usuários.
+
+
+--- FIM DA DESCRIÇÃO DO PROJETO ---
+
+
+Aguarde a proxima instrução
