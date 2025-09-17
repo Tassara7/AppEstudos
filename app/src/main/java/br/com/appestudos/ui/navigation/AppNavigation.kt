@@ -19,8 +19,11 @@ import br.com.appestudos.ui.screens.studysession.StudySessionScreen
 import br.com.appestudos.ui.screens.studysession.StudySessionViewModel
 import br.com.appestudos.ui.screens.importexport.ImportExportScreen
 import br.com.appestudos.ui.screens.importexport.ImportExportViewModel
+import br.com.appestudos.ui.screens.login.LoginScreen
+import com.google.firebase.auth.FirebaseAuth
 
 object AppDestinations {
+    const val LOGIN_ROUTE = "login"
     const val DECK_LIST_ROUTE = "deck_list"
     const val ADD_EDIT_DECK_ROUTE = "add_edit_deck"
     const val FLASHCARD_LIST_ROUTE = "flashcard_list"
@@ -34,8 +37,29 @@ fun AppNavigation(
     factory: ViewModelFactory
 ) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = AppDestinations.DECK_LIST_ROUTE) {
 
+    // Tela inicial dinâmica: login ou lista de decks
+    val startDestination =
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            AppDestinations.LOGIN_ROUTE
+        } else {
+            AppDestinations.DECK_LIST_ROUTE
+        }
+
+    NavHost(navController = navController, startDestination = startDestination) {
+
+        // Tela de Login
+        composable(route = AppDestinations.LOGIN_ROUTE) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(AppDestinations.DECK_LIST_ROUTE) {
+                        popUpTo(AppDestinations.LOGIN_ROUTE) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // Lista de Decks (com logout)
         composable(route = AppDestinations.DECK_LIST_ROUTE) {
             val viewModel: DeckListViewModel = factory.create(DeckListViewModel::class.java)
             DeckListScreen(
@@ -45,10 +69,17 @@ fun AppNavigation(
                 },
                 onDeckClick = { deckId ->
                     navController.navigate("${AppDestinations.FLASHCARD_LIST_ROUTE}/$deckId")
+                },
+                onLogout = {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate(AppDestinations.LOGIN_ROUTE) {
+                        popUpTo(AppDestinations.DECK_LIST_ROUTE) { inclusive = true }
+                    }
                 }
             )
         }
 
+        // Adicionar/Editar Deck
         composable(route = AppDestinations.ADD_EDIT_DECK_ROUTE) {
             val viewModel: AddEditDeckViewModel = factory.create(AddEditDeckViewModel::class.java)
             AddEditDeckScreen(
@@ -58,6 +89,7 @@ fun AppNavigation(
             )
         }
 
+        // Lista de Flashcards
         composable(
             route = "${AppDestinations.FLASHCARD_LIST_ROUTE}/{deckId}",
             arguments = listOf(navArgument("deckId") { type = NavType.LongType })
@@ -80,6 +112,7 @@ fun AppNavigation(
             )
         }
 
+        // Adicionar/Editar Flashcard
         composable(
             route = "${AppDestinations.ADD_EDIT_FLASHCARD_ROUTE}/{deckId}",
             arguments = listOf(navArgument("deckId") { type = NavType.LongType })
@@ -94,6 +127,7 @@ fun AppNavigation(
             )
         }
 
+        // Sessão de Estudo
         composable(
             route = "${AppDestinations.STUDY_SESSION_ROUTE}/{deckId}",
             arguments = listOf(navArgument("deckId") { type = NavType.LongType })
@@ -107,6 +141,7 @@ fun AppNavigation(
             )
         }
 
+        // Import/Export de Flashcards
         composable(
             route = "${AppDestinations.IMPORT_EXPORT_ROUTE}/{deckId}/{deckName}",
             arguments = listOf(

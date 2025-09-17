@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -64,7 +65,7 @@ dependencies {
     val coilVersion = "2.6.0"
     val ktorVersion = "2.3.7"
     val coroutinesVersion = "1.7.3"
-    val firebaseVersion = "33.2.0"
+    val firebaseVersion = "34.2.0"
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -111,9 +112,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
 
     implementation(platform("com.google.firebase:firebase-bom:$firebaseVersion"))
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-storage-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-auth")
+
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
