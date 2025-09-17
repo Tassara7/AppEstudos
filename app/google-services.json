@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "956834997683",
+    "project_id": "appestudos-effe7",
+    "storage_bucket": "appestudos-effe7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956834997683:android:cbf6716801e3fe40aed7c6",
+        "android_client_info": {
+          "package_name": "br.com.appestudos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHhGm7d3Nyxkr_wn89kzpLsfimDmn2AK8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
