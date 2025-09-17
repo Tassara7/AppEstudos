@@ -17,6 +17,8 @@ import br.com.appestudos.ui.screens.flashcardlist.FlashcardListScreen
 import br.com.appestudos.ui.screens.flashcardlist.FlashcardListViewModel
 import br.com.appestudos.ui.screens.studysession.StudySessionScreen
 import br.com.appestudos.ui.screens.studysession.StudySessionViewModel
+import br.com.appestudos.ui.screens.importexport.ImportExportScreen
+import br.com.appestudos.ui.screens.importexport.ImportExportViewModel
 
 object AppDestinations {
     const val DECK_LIST_ROUTE = "deck_list"
@@ -24,6 +26,7 @@ object AppDestinations {
     const val FLASHCARD_LIST_ROUTE = "flashcard_list"
     const val ADD_EDIT_FLASHCARD_ROUTE = "add_edit_flashcard"
     const val STUDY_SESSION_ROUTE = "study_session"
+    const val IMPORT_EXPORT_ROUTE = "import_export"
 }
 
 @Composable
@@ -70,6 +73,9 @@ fun AppNavigation(
                 },
                 onStudyClick = {
                     navController.navigate("${AppDestinations.STUDY_SESSION_ROUTE}/$deckId")
+                },
+                onImportExportClick = { deckId, deckName ->
+                    navController.navigate("${AppDestinations.IMPORT_EXPORT_ROUTE}/$deckId/$deckName")
                 }
             )
         }
@@ -97,6 +103,24 @@ fun AppNavigation(
             StudySessionScreen(
                 viewModel = viewModel,
                 deckId = deckId,
+                onNavigateUp = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            route = "${AppDestinations.IMPORT_EXPORT_ROUTE}/{deckId}/{deckName}",
+            arguments = listOf(
+                navArgument("deckId") { type = NavType.LongType },
+                navArgument("deckName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val deckId = backStackEntry.arguments?.getLong("deckId") ?: 0L
+            val deckName = backStackEntry.arguments?.getString("deckName") ?: ""
+            val viewModel: ImportExportViewModel = factory.create(ImportExportViewModel::class.java)
+            ImportExportScreen(
+                viewModel = viewModel,
+                deckId = deckId,
+                deckName = deckName,
                 onNavigateUp = { navController.navigateUp() }
             )
         }

@@ -8,6 +8,7 @@ import br.com.appestudos.ui.screens.addeditdeck.AddEditDeckViewModel
 import br.com.appestudos.ui.screens.addeditflashcard.AddEditFlashcardViewModel
 import br.com.appestudos.ui.screens.decklist.DeckListViewModel
 import br.com.appestudos.ui.screens.flashcardlist.FlashcardListViewModel
+import br.com.appestudos.ui.screens.importexport.ImportExportViewModel
 import br.com.appestudos.ui.screens.multiplechoice.MultipleChoiceViewModel
 import br.com.appestudos.ui.screens.studysession.StudySessionViewModel
 import br.com.appestudos.ui.screens.typeanswer.TypeAnswerViewModel
@@ -45,6 +46,10 @@ class ViewModelFactory(
         if (modelClass.isAssignableFrom(MultipleChoiceViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return MultipleChoiceViewModel(aiManager) as T
+        }
+        if (modelClass.isAssignableFrom(ImportExportViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ImportExportViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

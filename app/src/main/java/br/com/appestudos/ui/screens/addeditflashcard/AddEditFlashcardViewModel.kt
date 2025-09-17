@@ -12,14 +12,28 @@ import kotlinx.coroutines.launch
 import java.util.Date
 
 data class AddEditFlashcardUiState(
+    val selectedType: FlashcardType = FlashcardType.FRONT_AND_VERSO,
     val frontContent: String = "",
-    val backContent: String = ""
+    val backContent: String = "",
+    val clozeContent: String = "",
+    val clozeAnswers: List<String> = emptyList(),
+    val typeAnswerQuestion: String = "",
+    val typeAnswerCorrectAnswer: String = "",
+    val multipleChoiceQuestion: String = "",
+    val multipleChoiceOptions: List<String> = listOf("", "", "", ""),
+    val correctAnswerIndex: Int = 0,
+    val explanation: String = "",
+    val tags: String = ""
 )
 
 class AddEditFlashcardViewModel(private val repository: AppRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddEditFlashcardUiState())
     val uiState = _uiState.asStateFlow()
+
+    fun onTypeSelected(type: FlashcardType) {
+        _uiState.update { it.copy(selectedType = type) }
+    }
 
     fun onFrontContentChange(newContent: String) {
         _uiState.update { it.copy(frontContent = newContent) }
@@ -29,21 +43,131 @@ class AddEditFlashcardViewModel(private val repository: AppRepository) : ViewMod
         _uiState.update { it.copy(backContent = newContent) }
     }
 
+    fun onClozeContentChange(newContent: String) {
+        _uiState.update { it.copy(clozeContent = newContent) }
+    }
+
+    fun onClozeAnswersChange(answers: List<String>) {
+        _uiState.update { it.copy(clozeAnswers = answers) }
+    }
+
+    fun onTypeAnswerQuestionChange(question: String) {
+        _uiState.update { it.copy(typeAnswerQuestion = question) }
+    }
+
+    fun onTypeAnswerCorrectAnswerChange(answer: String) {
+        _uiState.update { it.copy(typeAnswerCorrectAnswer = answer) }
+    }
+
+    fun onMultipleChoiceQuestionChange(question: String) {
+        _uiState.update { it.copy(multipleChoiceQuestion = question) }
+    }
+
+    fun onMultipleChoiceOptionChange(index: Int, option: String) {
+        _uiState.update { state ->
+            val newOptions = state.multipleChoiceOptions.toMutableList()
+            newOptions[index] = option
+            state.copy(multipleChoiceOptions = newOptions)
+        }
+    }
+
+    fun onCorrectAnswerIndexChange(index: Int) {
+        _uiState.update { it.copy(correctAnswerIndex = index) }
+    }
+
+    fun onExplanationChange(explanation: String) {
+        _uiState.update { it.copy(explanation = explanation) }
+    }
+
+    fun onTagsChange(tags: String) {
+        _uiState.update { it.copy(tags = tags) }
+    }
+
     fun saveFlashcard(deckId: Long) {
         viewModelScope.launch {
             val currentState = uiState.value
-            val flashcard = Flashcard(
-                deckId = deckId,
-                type = FlashcardType.FRONT_AND_VERSO,
-                frontContent = currentState.frontContent,
-                backContent = currentState.backContent,
-                correctAnswer = currentState.backContent,
-                nextReviewDate = Date(),
-                interval = 0L,
-                repetitions = 0,
-                easeFactor = 2.5f
-            )
+            val flashcard = when (currentState.selectedType) {
+                FlashcardType.FRONT_AND_VERSO -> createFrontAndVersoFlashcard(deckId, currentState)
+                FlashcardType.CLOZE -> createClozeFlashcard(deckId, currentState)
+                FlashcardType.TYPE_THE_ANSWER -> createTypeAnswerFlashcard(deckId, currentState)
+                FlashcardType.MULTIPLE_CHOICE -> createMultipleChoiceFlashcard(deckId, currentState)
+            }
             repository.insertFlashcard(flashcard)
         }
+    }
+
+    private fun createFrontAndVersoFlashcard(deckId: Long, state: AddEditFlashcardUiState): Flashcard {
+        return Flashcard(
+            deckId = deckId,
+            type = FlashcardType.FRONT_AND_VERSO,
+            frontContent = state.frontContent,
+            backContent = state.backContent,
+            correctAnswer = state.backContent,
+            explanation = state.explanation.ifEmpty { null },
+            tags = parseTags(state.tags),
+            nextReviewDate = Date(),
+            interval = 0L,
+            repetitions = 0,
+            easeFactor = 2.5f
+        )
+    }
+
+    private fun createClozeFlashcard(deckId: Long, state: AddEditFlashcardUiState): Flashcard {
+        return Flashcard(
+            deckId = deckId,
+            type = FlashcardType.CLOZE,
+            frontContent = state.clozeContent,
+            backContent = state.clozeContent,
+            clozeContent = state.clozeContent,
+            clozeAnswers = state.clozeAnswers,
+            correctAnswer = state.clozeAnswers.joinToString(", "),
+            explanation = state.explanation.ifEmpty { null },
+            tags = parseTags(state.tags),
+            nextReviewDate = Date(),
+            interval = 0L,
+            repetitions = 0,
+            easeFactor = 2.5f
+        )
+    }
+
+    private fun createTypeAnswerFlashcard(deckId: Long, state: AddEditFlashcardUiState): Flashcard {
+        return Flashcard(
+            deckId = deckId,
+            type = FlashcardType.TYPE_THE_ANSWER,
+            frontContent = state.typeAnswerQuestion,
+            backContent = state.typeAnswerCorrectAnswer,
+            correctAnswer = state.typeAnswerCorrectAnswer,
+            explanation = state.explanation.ifEmpty { null },
+            tags = parseTags(state.tags),
+            nextReviewDate = Date(),
+            interval = 0L,
+            repetitions = 0,
+            easeFactor = 2.5f
+        )
+    }
+
+    private fun createMultipleChoiceFlashcard(deckId: Long, state: AddEditFlashcardUiState): Flashcard {
+        return Flashcard(
+            deckId = deckId,
+            type = FlashcardType.MULTIPLE_CHOICE,
+            frontContent = state.multipleChoiceQuestion,
+            backContent = state.multipleChoiceOptions[state.correctAnswerIndex],
+            multipleChoiceQuestion = state.multipleChoiceQuestion,
+            multipleChoiceOptions = state.multipleChoiceOptions,
+            correctAnswer = state.multipleChoiceOptions[state.correctAnswerIndex],
+            correctAnswerIndex = state.correctAnswerIndex,
+            explanation = state.explanation.ifEmpty { null },
+            tags = parseTags(state.tags),
+            nextReviewDate = Date(),
+            interval = 0L,
+            repetitions = 0,
+            easeFactor = 2.5f
+        )
+    }
+
+    private fun parseTags(tagsString: String): List<String> {
+        return tagsString.split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
     }
 }
