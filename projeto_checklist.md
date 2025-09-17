@@ -20,9 +20,11 @@ A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for i
 - [x] Implementar **Cloze/Omissão** (estrutura de dados e UI).
 - [x] Implementar **Digite a Resposta** (estrutura de dados e UI).
 - [x] Implementar **Múltipla Escolha** (estrutura de dados e UI).
-- [x] Importação/exportação de flashcards.
+- [x] Importação/exportação de flashcards (JSON e CSV completos).
 - [x] Preview em tempo real na criação.
 - [x] **Funcionalidade de estudo** (executar sessões de flashcards).
+- [x] Interface de importação/exportação com seleção de formato.
+- [x] Validação e tratamento de erros na importação/exportação.
 
 ### GPS Inteligente
 - [x] Usuário pode favoritar até **7 localizações** (estrutura de dados).

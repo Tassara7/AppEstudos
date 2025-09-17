@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -22,6 +23,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +42,8 @@ fun FlashcardListScreen(
     deckId: Long,
     onNavigateUp: () -> Unit,
     onAddFlashcardClick: (Long) -> Unit,
-    onStudyClick: (Long) -> Unit
+    onStudyClick: (Long) -> Unit,
+    onImportExportClick: (Long, String) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.getUiStateForDeck(deckId).collectAsStateWithLifecycle()
     val deckName = uiState.deck?.name ?: "Carregando..."
@@ -74,10 +77,19 @@ fun FlashcardListScreen(
                     onClick = { onStudyClick(deckId) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null)
                     Text("Estudar este Deck")
+                }
+                OutlinedButton(
+                    onClick = { onImportExportClick(deckId, deckName) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 0.dp)
+                ) {
+                    Icon(Icons.Default.ImportExport, contentDescription = null)
+                    Text("Importar/Exportar")
                 }
                 FlashcardList(
                     flashcards = uiState.flashcards
