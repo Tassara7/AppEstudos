@@ -223,7 +223,7 @@ object SpacedRepetitionScheduler {
     /**
      * Calcula a data da próxima revisão
      */
-    private fun getNextReviewDate(days: Int): Date {
+    fun getNextReviewDate(days: Int): Date {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, days)
         

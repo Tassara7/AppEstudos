@@ -38,9 +38,9 @@ A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for i
 ### Repetição Espaçada Avançada com IA
 
 - [x] Algoritmo baseado em **SM-2** (SpacedRepetitionScheduler).
-- [ ] Ajuste adaptativo via IA.
-- [ ] Predição de dificuldade de conteúdos.
-- [ ] Sugestões de horários ideais para revisão.
+- [x] Ajuste adaptativo via IA.
+- [x] Predição de dificuldade de conteúdos.
+- [x] Sugestões de horários ideais para revisão.
 
 ### Assistente de Estudos com IA
 
