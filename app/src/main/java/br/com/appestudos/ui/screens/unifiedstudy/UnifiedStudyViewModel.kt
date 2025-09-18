@@ -33,45 +33,41 @@ class UnifiedStudyViewModel(
     fun startStudySession(deckId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-
             try {
-                // Busca o deck e suas cartas
                 val deck = appRepository.getDeckById(deckId).first()
-                val flashcards = appRepository.getFlashcardsForDeck(deckId).first()
-
+                val location = studyTrackingRepository.findCurrentStudyLocation()
+                val locationId = location?.id
+                val cardsToStudy = if (locationId != null) {
+                    studyTrackingRepository.getFlashcardsForLocationRotation(deckId, locationId, 20)
+                } else {
+                    appRepository.getFlashcardsForDeck(deckId).first().take(20)
+                }
                 if (deck != null) {
-                    // Seleciona cartas para estudo usando o algoritmo de repetição espaçada
-                    val cardsToStudy = SpacedRepetitionScheduler.getNextCardsForReview(flashcards, 20)
-
-                        if (cardsToStudy.isNotEmpty()) {
-                            // Inicia sessão de estudo
-                            val location = studyTrackingRepository.findCurrentStudyLocation()
-                            currentSessionId = studyTrackingRepository.startStudySession(
-                                deckId = deckId,
-                                locationId = location?.id
+                    if (cardsToStudy.isNotEmpty()) {
+                        currentSessionId = studyTrackingRepository.startStudySession(
+                            deckId = deckId,
+                            locationId = locationId
+                        )
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                deck = deck,
+                                allCards = cardsToStudy,
+                                currentCardIndex = 0,
+                                currentCard = cardsToStudy.firstOrNull(),
+                                isSessionActive = true,
+                                studyLocation = location
                             )
-
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    deck = deck,
-                                    allCards = cardsToStudy,
-                                    currentCardIndex = 0,
-                                    currentCard = cardsToStudy.firstOrNull(),
-                                    isSessionActive = true,
-                                    studyLocation = location
-                                )
-                            }
-
-                            setupCurrentCard()
-                        } else {
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    error = "Não há cartas para revisar no momento!"
-                                )
-                            }
                         }
+                        setupCurrentCard()
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = "Não há cartas para revisar no momento!"
+                            )
+                        }
+                    }
                 } else {
                     _uiState.update {
                         it.copy(

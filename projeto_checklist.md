@@ -1,13 +1,14 @@
 # PRD – Plataforma de Aprendizagem Inteligente (Guia + Checklist)
 
 Este documento serve como **fonte de verdade** para o desenvolvimento do projeto.  
-A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for implementando as funcionalidades.  
+A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for implementando as funcionalidades.
 
 ---
 
 ## ✅ Checklist de Requisitos
 
 ### Arquitetura e Padrões
+
 - [x] Projeto em **Kotlin** (Android + servidor).
 - [x] Seguir **MVVM (Model-View-ViewModel)**.
 - [x] Interface 100% em **Jetpack Compose** com **Material Design 3**.
@@ -16,6 +17,7 @@ A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for i
 - [x] Organização em pacotes e classes bem estruturados.
 
 ### Sistema Avançado de Flashcards
+
 - [x] Implementar **Frente e Verso** (estrutura de dados e UI).
 - [x] Implementar **Cloze/Omissão** (estrutura de dados e UI).
 - [x] Implementar **Digite a Resposta** (estrutura de dados e UI).
@@ -27,18 +29,21 @@ A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for i
 - [x] Validação e tratamento de erros na importação/exportação.
 
 ### GPS Inteligente
+
 - [x] Usuário pode favoritar até **7 localizações** (estrutura de dados).
 - [x] **Geofencing** (LocationService implementado).
 - [x] Relatórios de desempenho por local (UI criada).
-- [ ] **Rotação inteligente** de conteúdos por localização (lógica).
+- [x] **Rotação inteligente** de conteúdos por localização (lógica).
 
 ### Repetição Espaçada Avançada com IA
+
 - [x] Algoritmo baseado em **SM-2** (SpacedRepetitionScheduler).
 - [ ] Ajuste adaptativo via IA.
 - [ ] Predição de dificuldade de conteúdos.
 - [ ] Sugestões de horários ideais para revisão.
 
 ### Assistente de Estudos com IA
+
 - [x] Estrutura para IA (AIManager, GoogleAIService, GroqService).
 - [ ] IA gera flashcards automaticamente (implementação funcional).
 - [ ] IA valida respostas abertas com feedback completo.
@@ -48,17 +53,20 @@ A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for i
 - [x] Multi-LLM com fallback (estrutura criada, sem implementação).
 
 ### Armazenamento e Backend
+
 - [x] **Local:** SQLite/Room para offline-first.
 - [ ] **Servidor:** API REST em **Ktor** (CRUD de flashcards, compartilhamento, autenticação).
 - [ ] **Nuvem:** Firebase para recursos sociais e colaboração.
 - [ ] Sincronização híbrida (merge inteligente).
 
 ### Recursos Multimídia
+
 - [x] Editor de texto rico (estrutura básica).
 - [ ] Integração com imagens, LaTeX e áudio (funcional).
 - [ ] Armazenamento híbrido local + Firebase.
 
 ### Qualidade e Entregáveis
+
 - [ ] Testes automatizados.
 - [ ] Integração contínua (CI).
 - [x] Código limpo e documentado.
@@ -122,7 +130,8 @@ J --> K[Fim do Projeto]
 ---
 
 📌 **Instrução para IA:**  
-Sempre siga o checklist e o fluxo acima.  
-- Antes de gerar código, confira se a etapa correspondente está marcada no checklist.  
-- Ao concluir uma funcionalidade, marque-a como concluída (`[x]`).  
-- Não avance para a próxima etapa sem finalizar a anterior.  
+Sempre siga o checklist e o fluxo acima.
+
+- Antes de gerar código, confira se a etapa correspondente está marcada no checklist.
+- Ao concluir uma funcionalidade, marque-a como concluída (`[x]`).
+- Não avance para a próxima etapa sem finalizar a anterior.

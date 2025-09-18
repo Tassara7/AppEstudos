@@ -48,6 +48,8 @@ interface StudyTrackingRepository {
     fun getLocationUpdates(): Flow<LocationResult>
     suspend fun findCurrentStudyLocation(): StudyLocation?
     suspend fun getAddressFromCoordinates(latitude: Double, longitude: Double): String?
+
+    suspend fun getFlashcardsForLocationRotation(deckId: Long, locationId: Long, sessionLimit: Int = 20): List<br.com.appestudos.data.model.Flashcard>
 }
 
 class StudyTrackingRepositoryImpl(
@@ -181,4 +183,22 @@ class StudyTrackingRepositoryImpl(
     
     override suspend fun getAddressFromCoordinates(latitude: Double, longitude: Double): String? =
         locationService.getAddressFromLocation(latitude, longitude)
+
+    override suspend fun getFlashcardsForLocationRotation(deckId: Long, locationId: Long, sessionLimit: Int): List<br.com.appestudos.data.model.Flashcard> {
+        val allFlashcards = sessionDao.getFlashcardsForDeck(deckId)
+        val performances = performanceDao.getPerformanceByLocationSync(locationId)
+        val flashcardLastReviewed = mutableMapOf<Long, Long>()
+        for (perf in performances) {
+            val last = flashcardLastReviewed[perf.flashcardId]
+            if (last == null || perf.timestamp.time > last) {
+                flashcardLastReviewed[perf.flashcardId] = perf.timestamp.time
+            }
+        }
+        val now = System.currentTimeMillis()
+        val sorted = allFlashcards.sortedWith(compareBy {
+            val last = flashcardLastReviewed[it.id] ?: 0L
+            last
+        })
+        return sorted.take(sessionLimit)
+    }
 }

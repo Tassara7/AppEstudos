@@ -58,6 +58,9 @@ interface StudySessionDao {
     
     @Query("SELECT * FROM study_sessions WHERE locationId = :locationId ORDER BY startTime DESC")
     fun getSessionsByLocation(locationId: Long): Flow<List<StudySession>>
+
+    @Query("SELECT * FROM flashcards WHERE deckId = :deckId")
+    suspend fun getFlashcardsForDeck(deckId: Long): List<br.com.appestudos.data.model.Flashcard>
     
     @Query("SELECT * FROM study_sessions WHERE id = :id")
     suspend fun getSessionById(id: Long): StudySession?
@@ -105,6 +108,9 @@ interface FlashcardPerformanceDao {
     
     @Query("SELECT * FROM flashcard_performance WHERE locationId = :locationId ORDER BY timestamp DESC")
     fun getPerformanceByLocation(locationId: Long): Flow<List<FlashcardPerformance>>
+
+    @Query("SELECT * FROM flashcard_performance WHERE locationId = :locationId ORDER BY timestamp DESC")
+    suspend fun getPerformanceByLocationSync(locationId: Long): List<FlashcardPerformance>
     
     @Query("""
         SELECT AVG(CASE WHEN isCorrect THEN 100.0 ELSE 0.0 END) as performance
