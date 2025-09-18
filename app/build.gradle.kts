@@ -17,6 +17,13 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        // 🔹 Campo customizado para API Key
+        buildConfigField(
+            "String",
+            "GOOGLE_AI_API_KEY",
+            "\"${project.properties["GOOGLE_AI_API_KEY"] ?: ""}\""
+        )
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -32,6 +39,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -43,9 +51,12 @@ android {
             "-opt-in=androidx.compose.animation.ExperimentalAnimationApi"
         )
     }
+
     buildFeatures {
         compose = true
+        buildConfig = true // 🔹 Necessário para habilitar o uso de BuildConfig
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -86,6 +97,9 @@ dependencies {
     implementation("androidx.compose.animation:animation")
     implementation("androidx.navigation:navigation-compose:$navigationComposeVersion")
 
+    // 🔹 Biblioteca Google AI (duas versões estavam duplicadas, mantive a mais nova)
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
+
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
@@ -116,13 +130,10 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-auth")
 
-
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
-
-    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

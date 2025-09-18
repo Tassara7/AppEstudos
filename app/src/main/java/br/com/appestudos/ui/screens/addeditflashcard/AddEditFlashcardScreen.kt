@@ -1,20 +1,8 @@
 package br.com.appestudos.ui.screens.addeditflashcard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,25 +13,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +34,7 @@ fun AddEditFlashcardScreen(
     onSave: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var aiTopic by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -93,10 +65,11 @@ fun AddEditFlashcardScreen(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
+            // 🔹 Coluna de edição
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight()
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
@@ -148,7 +121,6 @@ fun AddEditFlashcardScreen(
                     value = uiState.explanation,
                     onValueChange = viewModel::onExplanationChange,
                     label = { Text("Explicação (opcional)") },
-                    placeholder = { Text("Adicione uma explicação para este flashcard") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2
                 )
@@ -159,13 +131,58 @@ fun AddEditFlashcardScreen(
                     value = uiState.tags,
                     onValueChange = viewModel::onTagsChange,
                     label = { Text("Tags (separadas por vírgula)") },
-                    placeholder = { Text("matemática, álgebra, equações") },
+                    placeholder = { Text("matemática, álgebra") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 🔹 Integração com IA
+                Text(
+                    text = "Gerar Flashcard com IA",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = aiTopic,
+                    onValueChange = { aiTopic = it },
+                    label = { Text("Tema ou tópico") },
+                    placeholder = { Text("Ex: Revolução Francesa") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { if (aiTopic.isNotBlank()) viewModel.generateFlashcardWithAI(aiTopic) },
+                    enabled = !uiState.isLoading,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Gerando...")
+                    } else {
+                        Text("Gerar com IA")
+                    }
+                }
+
+                uiState.error?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Erro: $it", color = MaterialTheme.colorScheme.error)
+                }
             }
 
             Spacer(modifier = Modifier.size(16.dp))
 
+            // 🔹 Coluna de preview
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -186,6 +203,10 @@ fun AddEditFlashcardScreen(
         }
     }
 }
+
+/* ===========================================================
+   FUNÇÕES AUXILIARES - Tudo no mesmo arquivo
+   =========================================================== */
 
 @Composable
 fun FlashcardTypeSelector(
@@ -232,29 +253,19 @@ fun FrontAndVersoEditor(
     onFrontContentChange: (String) -> Unit,
     onBackContentChange: (String) -> Unit
 ) {
-    Text(
-        text = "Editar Flashcard Frente e Verso",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
-
+    Text("Editar Flashcard Frente e Verso", fontWeight = FontWeight.Bold)
     OutlinedTextField(
         value = frontContent,
         onValueChange = onFrontContentChange,
         label = { Text("Frente") },
-        placeholder = { Text("Digite o conteúdo da frente do flashcard") },
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
-    
     Spacer(modifier = Modifier.height(16.dp))
-    
     OutlinedTextField(
         value = backContent,
         onValueChange = onBackContentChange,
         label = { Text("Verso") },
-        placeholder = { Text("Digite a resposta ou conteúdo do verso") },
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
@@ -267,32 +278,15 @@ fun ClozeEditor(
     onClozeContentChange: (String) -> Unit,
     onClozeAnswersChange: (List<String>) -> Unit
 ) {
-    Text(
-        text = "Editar Flashcard Cloze",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
-
+    Text("Editar Flashcard Cloze", fontWeight = FontWeight.Bold)
     OutlinedTextField(
         value = clozeContent,
         onValueChange = onClozeContentChange,
         label = { Text("Texto com lacunas") },
-        placeholder = { Text("A capital do Brasil é {{c1::Brasília}} e foi fundada em {{c2::1960}}") },
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Text(
-        text = "Respostas das lacunas:",
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Bold
-    )
-
     Spacer(modifier = Modifier.height(8.dp))
-
     Column {
         clozeAnswers.forEachIndexed { index, answer ->
             Row(
@@ -309,7 +303,6 @@ fun ClozeEditor(
                     label = { Text("Resposta ${index + 1}") },
                     modifier = Modifier.weight(1f)
                 )
-                
                 if (clozeAnswers.size > 1) {
                     IconButton(onClick = {
                         val newAnswers = clozeAnswers.toMutableList()
@@ -320,14 +313,8 @@ fun ClozeEditor(
                     }
                 }
             }
-            
-            if (index < clozeAnswers.size - 1) {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            Spacer(modifier = Modifier.height(8.dp))
         }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
         IconButton(onClick = {
             val newAnswers = clozeAnswers + ""
             onClozeAnswersChange(newAnswers)
@@ -344,29 +331,19 @@ fun TypeAnswerEditor(
     onQuestionChange: (String) -> Unit,
     onCorrectAnswerChange: (String) -> Unit
 ) {
-    Text(
-        text = "Editar Flashcard Digite a Resposta",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
-
+    Text("Editar Flashcard Digite a Resposta", fontWeight = FontWeight.Bold)
     OutlinedTextField(
         value = question,
         onValueChange = onQuestionChange,
         label = { Text("Pergunta") },
-        placeholder = { Text("Digite a pergunta") },
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
-    
-    Spacer(modifier = Modifier.height(16.dp))
-    
+    Spacer(modifier = Modifier.height(8.dp))
     OutlinedTextField(
         value = correctAnswer,
         onValueChange = onCorrectAnswerChange,
         label = { Text("Resposta Correta") },
-        placeholder = { Text("Digite a resposta esperada") },
         modifier = Modifier.fillMaxWidth(),
         minLines = 2
     )
@@ -381,32 +358,15 @@ fun MultipleChoiceEditor(
     onOptionChange: (Int, String) -> Unit,
     onCorrectAnswerIndexChange: (Int) -> Unit
 ) {
-    Text(
-        text = "Editar Flashcard Múltipla Escolha",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
-
+    Text("Editar Flashcard Múltipla Escolha", fontWeight = FontWeight.Bold)
     OutlinedTextField(
         value = question,
         onValueChange = onQuestionChange,
         label = { Text("Pergunta") },
-        placeholder = { Text("Digite a pergunta") },
         modifier = Modifier.fillMaxWidth(),
         minLines = 3
     )
-    
-    Spacer(modifier = Modifier.height(16.dp))
-    
-    Text(
-        text = "Alternativas:",
-        style = MaterialTheme.typography.bodyMedium,
-        fontWeight = FontWeight.Bold
-    )
-    
     Spacer(modifier = Modifier.height(8.dp))
-
     options.forEachIndexed { index, option ->
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -416,7 +376,6 @@ fun MultipleChoiceEditor(
                 selected = correctAnswerIndex == index,
                 onClick = { onCorrectAnswerIndexChange(index) }
             )
-            
             OutlinedTextField(
                 value = option,
                 onValueChange = { onOptionChange(index, it) },
@@ -424,10 +383,7 @@ fun MultipleChoiceEditor(
                 modifier = Modifier.weight(1f)
             )
         }
-        
-        if (index < options.size - 1) {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -437,88 +393,44 @@ fun FlashcardPreview(
     uiState: AddEditFlashcardUiState
 ) {
     var showBack by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .clickable { showBack = !showBack },
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (showBack) MaterialTheme.colorScheme.secondaryContainer
                 else MaterialTheme.colorScheme.primaryContainer
             )
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 when (type) {
-                    FlashcardType.FRONT_AND_VERSO -> {
-                        Text(
-                            text = if (showBack) {
-                                uiState.backContent.ifEmpty { "Verso do flashcard aparecerá aqui" }
-                            } else {
-                                uiState.frontContent.ifEmpty { "Frente do flashcard aparecerá aqui" }
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    FlashcardType.CLOZE -> {
-                        Text(
-                            text = if (showBack) {
-                                uiState.clozeContent.ifEmpty { "Texto com respostas aparecerá aqui" }
-                            } else {
-                                uiState.clozeContent.replace(Regex("\\{\\{c\\d+::([^}]+)\\}\\}"), "_____")
-                                    .ifEmpty { "Texto com lacunas aparecerá aqui" }
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    FlashcardType.TYPE_THE_ANSWER -> {
-                        Text(
-                            text = if (showBack) {
-                                uiState.typeAnswerCorrectAnswer.ifEmpty { "Resposta aparecerá aqui" }
-                            } else {
-                                uiState.typeAnswerQuestion.ifEmpty { "Pergunta aparecerá aqui" }
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    FlashcardType.FRONT_AND_VERSO -> Text(
+                        text = if (showBack) uiState.backContent else uiState.frontContent,
+                        textAlign = TextAlign.Center
+                    )
+                    FlashcardType.CLOZE -> Text(
+                        text = if (showBack) uiState.clozeContent
+                        else uiState.clozeContent.replace(Regex("\\{\\{c\\d+::([^}]+)\\}\\}"), "_____"),
+                        textAlign = TextAlign.Center
+                    )
+                    FlashcardType.TYPE_THE_ANSWER -> Text(
+                        text = if (showBack) uiState.typeAnswerCorrectAnswer else uiState.typeAnswerQuestion,
+                        textAlign = TextAlign.Center
+                    )
                     FlashcardType.MULTIPLE_CHOICE -> {
                         if (showBack) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Resposta Correta:", style = MaterialTheme.typography.bodySmall)
-                                Text(
-                                    text = uiState.multipleChoiceOptions.getOrNull(uiState.correctAnswerIndex)
-                                        ?: "Selecione a resposta correta",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
+                            Text("Resposta: ${uiState.multipleChoiceOptions.getOrNull(uiState.correctAnswerIndex) ?: ""}")
                         } else {
                             Column {
-                                Text(
-                                    text = uiState.multipleChoiceQuestion.ifEmpty { "Pergunta aparecerá aqui" },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(uiState.multipleChoiceQuestion)
                                 uiState.multipleChoiceOptions.forEachIndexed { index, option ->
                                     if (option.isNotEmpty()) {
-                                        Text(
-                                            text = "${('A' + index)}) $option",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
+                                        Text("${('A' + index)}) $option")
                                     }
                                 }
                             }
@@ -527,33 +439,10 @@ fun FlashcardPreview(
                 }
             }
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (showBack) "Resposta" else "Pergunta",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            IconButton(onClick = { showBack = !showBack }) {
-                Icon(
-                    Icons.Default.Refresh,
-                    contentDescription = "Virar flashcard",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Clique no card ou no ícone para virar",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            text = if (showBack) "Resposta" else "Pergunta",
+            style = MaterialTheme.typography.labelMedium
         )
     }
 }

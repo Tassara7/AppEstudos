@@ -133,7 +133,10 @@ fun AppNavigation(
             arguments = listOf(navArgument("deckId") { type = NavType.LongType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getLong("deckId") ?: 0L
-            val viewModel: StudySessionViewModel = factory.create(StudySessionViewModel::class.java)
+            val viewModel: StudySessionViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = factory
+            )
+
             StudySessionScreen(
                 viewModel = viewModel,
                 deckId = deckId,

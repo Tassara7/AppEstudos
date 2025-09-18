@@ -2,6 +2,9 @@ package br.com.appestudos.ui.screens.addeditflashcard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.appestudos.data.ai.AIManager
+import br.com.appestudos.data.ai.AIRequest
+import br.com.appestudos.data.ai.AIResult
 import br.com.appestudos.data.model.Flashcard
 import br.com.appestudos.data.model.FlashcardType
 import br.com.appestudos.data.repository.AppRepository
@@ -23,14 +26,20 @@ data class AddEditFlashcardUiState(
     val multipleChoiceOptions: List<String> = listOf("", "", "", ""),
     val correctAnswerIndex: Int = 0,
     val explanation: String = "",
-    val tags: String = ""
+    val tags: String = "",
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
-class AddEditFlashcardViewModel(private val repository: AppRepository) : ViewModel() {
+class AddEditFlashcardViewModel(
+    private val repository: AppRepository,
+    private val aiManager: AIManager
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddEditFlashcardUiState())
     val uiState = _uiState.asStateFlow()
 
+    // ---------- Handlers de UI ----------
     fun onTypeSelected(type: FlashcardType) {
         _uiState.update { it.copy(selectedType = type) }
     }
@@ -66,7 +75,9 @@ class AddEditFlashcardViewModel(private val repository: AppRepository) : ViewMod
     fun onMultipleChoiceOptionChange(index: Int, option: String) {
         _uiState.update { state ->
             val newOptions = state.multipleChoiceOptions.toMutableList()
-            newOptions[index] = option
+            if (index in newOptions.indices) {
+                newOptions[index] = option
+            }
             state.copy(multipleChoiceOptions = newOptions)
         }
     }
@@ -83,6 +94,54 @@ class AddEditFlashcardViewModel(private val repository: AppRepository) : ViewMod
         _uiState.update { it.copy(tags = tags) }
     }
 
+    // ---------- IA ----------
+    fun generateFlashcardWithAI(topic: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val prompt = """
+                    Gere um flashcard em português no formato:
+                    Frente: [pergunta]
+                    Verso: [resposta]
+
+                    Tema: $topic
+                """.trimIndent()
+
+                val result = aiManager.generateText(AIRequest(prompt = prompt))
+
+                when (result) {
+                    is AIResult.Success -> {
+                        val content = result.data.content
+                        val front = Regex("Frente:(.*)").find(content)?.groupValues?.get(1)?.trim()
+                            ?: "Frente não encontrada"
+                        val back = Regex("Verso:(.*)").find(content)?.groupValues?.get(1)?.trim()
+                            ?: "Verso não encontrada"
+
+                        _uiState.update {
+                            it.copy(
+                                frontContent = front,
+                                backContent = back,
+                                isLoading = false
+                            )
+                        }
+                    }
+
+                    is AIResult.Error -> {
+                        _uiState.update { it.copy(isLoading = false, error = result.message) }
+                    }
+
+                    is AIResult.Loading -> {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = e.message) }
+            }
+        }
+    }
+
+    // ---------- Persistência ----------
     fun saveFlashcard(deckId: Long) {
         viewModelScope.launch {
             val currentState = uiState.value
@@ -96,6 +155,7 @@ class AddEditFlashcardViewModel(private val repository: AppRepository) : ViewMod
         }
     }
 
+    // ---------- Helpers ----------
     private fun createFrontAndVersoFlashcard(deckId: Long, state: AddEditFlashcardUiState): Flashcard {
         return Flashcard(
             deckId = deckId,
