@@ -7,7 +7,10 @@ import br.com.appestudos.data.ai.AIRequest
 import br.com.appestudos.data.ai.AIResult
 import br.com.appestudos.data.model.Flashcard
 import br.com.appestudos.data.model.FlashcardType
+import br.com.appestudos.data.model.MediaContent
+import br.com.appestudos.data.model.LatexExpression
 import br.com.appestudos.data.repository.AppRepository
+import br.com.appestudos.data.service.HybridMediaSyncService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,13 +30,16 @@ data class AddEditFlashcardUiState(
     val correctAnswerIndex: Int = 0,
     val explanation: String = "",
     val tags: String = "",
-    val isLoading: Boolean = false,
+    val mediaContents: List<MediaContent> = emptyList(),
+    val latexExpressions: List<LatexExpression> = emptyList(),
+	val isLoading: Boolean = false,
     val error: String? = null
 )
 
 class AddEditFlashcardViewModel(
     private val repository: AppRepository,
-    private val aiManager: AIManager
+    private val hybridMediaSyncService: HybridMediaSyncService,
+	private val aiManager: AIManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddEditFlashcardUiState())
@@ -142,6 +148,54 @@ class AddEditFlashcardViewModel(
     }
 
     // ---------- Persistência ----------
+    fun onMediaAdded(mediaContent: MediaContent) {
+        _uiState.update { state ->
+            state.copy(mediaContents = state.mediaContents + mediaContent)
+        }
+    }
+
+    fun onMediaRemoved(mediaContent: MediaContent) {
+        _uiState.update { state ->
+            state.copy(mediaContents = state.mediaContents - mediaContent)
+        }
+    }
+
+    fun onLatexExpressionsChanged(expressions: List<LatexExpression>) {
+        _uiState.update { it.copy(latexExpressions = expressions) }
+    }
+
+    fun loadFlashcard(flashcardId: Long) {
+        viewModelScope.launch {
+            // Garantir que as mídias estejam disponíveis localmente
+            hybridMediaSyncService.downloadFlashcardMedia(flashcardId)
+            
+            // Carregar flashcard e seus dados
+            repository.getFlashcardById(flashcardId).collect { flashcard ->
+                flashcard?.let { card ->
+                    repository.getMediaContentForFlashcard(flashcardId).collect { mediaList ->
+                        _uiState.update { state ->
+                            state.copy(
+                                selectedType = card.type,
+                                frontContent = card.frontContent ?: "",
+                                backContent = card.backContent ?: "",
+                                clozeContent = card.clozeContent ?: "",
+                                clozeAnswers = card.clozeAnswers ?: emptyList(),
+                                typeAnswerQuestion = card.frontContent ?: "",
+                                typeAnswerCorrectAnswer = card.correctAnswer ?: "",
+                                multipleChoiceQuestion = card.multipleChoiceQuestion ?: "",
+                                multipleChoiceOptions = card.multipleChoiceOptions ?: listOf("", "", "", ""),
+                                correctAnswerIndex = card.correctAnswerIndex ?: 0,
+                                explanation = card.explanation ?: "",
+                                tags = card.tags?.joinToString(", ") ?: "",
+                                mediaContents = mediaList
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun saveFlashcard(deckId: Long) {
         viewModelScope.launch {
             val currentState = uiState.value
@@ -151,7 +205,15 @@ class AddEditFlashcardViewModel(
                 FlashcardType.TYPE_THE_ANSWER -> createTypeAnswerFlashcard(deckId, currentState)
                 FlashcardType.MULTIPLE_CHOICE -> createMultipleChoiceFlashcard(deckId, currentState)
             }
-            repository.insertFlashcard(flashcard)
+            val flashcardId = repository.insertFlashcard(flashcard)
+            
+            // Inserir conteúdo de mídia e sincronizar com Firebase
+            currentState.mediaContents.forEach { media ->
+                repository.insertMediaContent(media.copy(flashcardId = flashcardId))
+            }
+            
+            // Sincronizar mídias com Firebase (híbrido)
+            hybridMediaSyncService.syncFlashcardMedia(flashcardId)
         }
     }
 

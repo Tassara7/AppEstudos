@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import br.com.appestudos.data.ai.AIManager
 import br.com.appestudos.data.repository.AppRepository
+import br.com.appestudos.data.service.HybridMediaSyncService
 import br.com.appestudos.ui.screens.addeditdeck.AddEditDeckViewModel
 import br.com.appestudos.ui.screens.addeditflashcard.AddEditFlashcardViewModel
 import br.com.appestudos.ui.screens.decklist.DeckListViewModel
@@ -14,16 +15,17 @@ import br.com.appestudos.ui.screens.studysession.StudySessionViewModel
 import br.com.appestudos.ui.screens.typeanswer.TypeAnswerViewModel
 
 /**
- * Factory central para criar os ViewModels da aplicação.
+ * Factory central para criar os ViewModels da aplica��o.
  *
  * - Garante que o [AppRepository] seja injetado em todos os ViewModels que precisam de dados locais.
- * - Garante que o [AIManager] seja injetado em todos os ViewModels que precisam de integração com IA.
+ * - Garante que o [AIManager] seja injetado em todos os ViewModels que precisam de integra��o com IA.
  *
- * Assim mantemos consistência e evitamos repetição de código.
+ * Assim mantemos consist�ncia e evitamos repeti��o de c�digo.
  */
 class ViewModelFactory(
     private val repository: AppRepository,
-    private val aiManager: AIManager
+    private val aiManager: AIManager,
+    private val hybridMediaSyncService: HybridMediaSyncService
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -42,11 +44,11 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(AddEditFlashcardViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
-                AddEditFlashcardViewModel(repository, aiManager) as T
+                AddEditFlashcardViewModel(repository, hybridMediaSyncService, aiManager) as T
             }
             modelClass.isAssignableFrom(StudySessionViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
-                StudySessionViewModel(repository, aiManager) as T // ✅ agora passa o AIManager também
+                StudySessionViewModel(repository, aiManager) as T // ? agora passa o AIManager tamb�m
             }
             modelClass.isAssignableFrom(TypeAnswerViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
@@ -62,5 +64,34 @@ class ViewModelFactory(
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
+        if (modelClass.isAssignableFrom(AddEditDeckViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return AddEditDeckViewModel(repository) as T
+        }
+        if (modelClass.isAssignableFrom(FlashcardListViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return FlashcardListViewModel(repository) as T
+        }
+        if (modelClass.isAssignableFrom(AddEditFlashcardViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return AddEditFlashcardViewModel(repository, hybridMediaSyncService, aiManager) as T
+        }
+        if (modelClass.isAssignableFrom(StudySessionViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return StudySessionViewModel(repository, aiManager) as T
+        }
+        if (modelClass.isAssignableFrom(TypeAnswerViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TypeAnswerViewModel(aiManager) as T
+        }
+        if (modelClass.isAssignableFrom(MultipleChoiceViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MultipleChoiceViewModel(aiManager) as T
+        }
+        if (modelClass.isAssignableFrom(ImportExportViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ImportExportViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

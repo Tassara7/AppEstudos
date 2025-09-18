@@ -3,18 +3,23 @@ package br.com.appestudos.ui.screens.flashcardlist
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.ImportExport
+import androidx.compose.material.icons.filled.MicNone
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -27,13 +32,18 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import br.com.appestudos.data.model.Flashcard
+import br.com.appestudos.data.model.MediaContent
+import br.com.appestudos.data.model.MediaType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +102,8 @@ fun FlashcardListScreen(
                     Text("Importar/Exportar")
                 }
                 FlashcardList(
-                    flashcards = uiState.flashcards
+                    flashcards = uiState.flashcards,
+                    viewModel = viewModel
                 )
             }
         }
@@ -101,25 +112,81 @@ fun FlashcardListScreen(
 
 @Composable
 fun FlashcardList(
-    flashcards: List<Flashcard>,
+    flashcards: List<FlashcardWithMedia>,
+    viewModel: FlashcardListViewModel,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
-        items(flashcards) { flashcard ->
-            FlashcardItem(flashcard = flashcard, modifier = Modifier.padding(vertical = 8.dp))
+        items(flashcards) { flashcardWithMedia ->
+            FlashcardItem(
+                flashcardWithMedia = flashcardWithMedia, 
+                viewModel = viewModel,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
         }
     }
 }
 
 @Composable
 fun FlashcardItem(
-    flashcard: Flashcard,
+    flashcardWithMedia: FlashcardWithMedia,
+    viewModel: FlashcardListViewModel,
     modifier: Modifier = Modifier
 ) {
+    val mediaContents by viewModel.getMediaContentForFlashcard(flashcardWithMedia.flashcard.id)
+        .collectAsStateWithLifecycle(initialValue = emptyList())
+    
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = flashcard.frontContent, style = MaterialTheme.typography.titleLarge)
-            Text(text = flashcard.backContent, style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = flashcardWithMedia.flashcard.frontContent, 
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Text(
+                        text = flashcardWithMedia.flashcard.backContent, 
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                
+                // Ícones de mídia
+                if (mediaContents.isNotEmpty()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (mediaContents.any { it.type == MediaType.AUDIO }) {
+                            Icon(
+                                Icons.Default.MicNone,
+                                contentDescription = "Contém áudio",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        if (mediaContents.any { it.type == MediaType.IMAGE }) {
+                            Icon(
+                                Icons.Default.Image,
+                                contentDescription = "Contém imagem",
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        if (mediaContents.any { it.type == MediaType.VIDEO }) {
+                            Icon(
+                                Icons.Default.Videocam,
+                                contentDescription = "Contém vídeo",
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
