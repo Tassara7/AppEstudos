@@ -7,6 +7,7 @@ import br.com.appestudos.data.ai.GroqService
 import br.com.appestudos.data.local.AppDatabase
 import br.com.appestudos.data.repository.AppRepository
 import br.com.appestudos.data.repository.AppRepositoryImpl
+import br.com.appestudos.data.service.HybridMediaSyncService
 
 class AppEstudosApplication : Application() {
 
@@ -25,5 +26,9 @@ class AppEstudosApplication : Application() {
             flashcardDao = database.flashcardDao(),
             mediaContentDao = database.mediaContentDao()
         )
+    }
+
+    val hybridMediaSyncService: HybridMediaSyncService by lazy {
+        HybridMediaSyncService(this, repository)
     }
 }

@@ -62,8 +62,8 @@ A IA deve **sempre se basear neste arquivo** e marcar o checklist conforme for i
 ### Recursos Multimídia
 
 - [x] Editor de texto rico (estrutura básica).
-- [ ] Integração com imagens, LaTeX e áudio (funcional).
-- [ ] Armazenamento híbrido local + Firebase.
+- [x] Integração com imagens, LaTeX e áudio (funcional).
+- [x] Armazenamento híbrido local + Firebase.
 
 ### Qualidade e Entregáveis
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import br.com.appestudos.data.ai.AIManager
 import br.com.appestudos.data.repository.AppRepository
+import br.com.appestudos.data.service.HybridMediaSyncService
 import br.com.appestudos.ui.screens.addeditdeck.AddEditDeckViewModel
 import br.com.appestudos.ui.screens.addeditflashcard.AddEditFlashcardViewModel
 import br.com.appestudos.ui.screens.decklist.DeckListViewModel
@@ -15,7 +16,8 @@ import br.com.appestudos.ui.screens.typeanswer.TypeAnswerViewModel
 
 class ViewModelFactory(
     private val repository: AppRepository,
-    private val aiManager: AIManager
+    private val aiManager: AIManager,
+    private val hybridMediaSyncService: HybridMediaSyncService
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -33,7 +35,7 @@ class ViewModelFactory(
         }
         if (modelClass.isAssignableFrom(AddEditFlashcardViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return AddEditFlashcardViewModel(repository) as T
+            return AddEditFlashcardViewModel(repository, hybridMediaSyncService) as T
         }
         if (modelClass.isAssignableFrom(StudySessionViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

@@ -253,15 +253,42 @@ object SpacedRepetitionScheduler {
         prioritizeHard: Boolean = true
     ): List<Flashcard> {
         val now = Date()
-        val dueCards = flashcards.filter { card ->
-            card.nextReviewDate?.before(now) == true || card.nextReviewDate == null
+        
+        // Separar cartas por status
+        val newCards = flashcards.filter { card ->
+            card.repetitions == 0 || card.nextReviewDate == null
         }
-
-        return if (prioritizeHard) {
-            dueCards.sortedWith(compareBy<Flashcard> { it.easeFactor }.thenBy { it.nextReviewDate })
+        
+        val dueCards = flashcards.filter { card ->
+            card.nextReviewDate != null && card.nextReviewDate!!.before(now) && card.repetitions > 0
+        }
+        
+        // Se não há cartas vencidas, incluir cartas novas
+        val cardsToReview = if (dueCards.isNotEmpty()) {
+            if (prioritizeHard) {
+                dueCards.sortedWith(compareBy<Flashcard> { it.easeFactor }.thenBy { it.nextReviewDate })
+            } else {
+                dueCards.sortedBy { it.nextReviewDate }
+            }
         } else {
-            dueCards.sortedBy { it.nextReviewDate }
-        }.take(sessionLimit)
+            // Se não há cartas vencidas, usar cartas novas
+            newCards.shuffled()
+        }
+        
+        // Se ainda não temos cartas suficientes, adicionar mais cartas novas
+        val result = cardsToReview.take(sessionLimit).toMutableList()
+        if (result.size < sessionLimit && newCards.isNotEmpty()) {
+            val remaining = sessionLimit - result.size
+            val additionalNewCards = newCards.filter { it !in result }.take(remaining)
+            result.addAll(additionalNewCards)
+        }
+        
+        // Se ainda não temos cartas, usar todas as cartas disponíveis
+        if (result.isEmpty() && flashcards.isNotEmpty()) {
+            return flashcards.shuffled().take(sessionLimit)
+        }
+        
+        return result
     }
 
     /**
