@@ -100,30 +100,97 @@ class AddEditFlashcardViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             try {
-                val prompt = """
-                    Gere um flashcard em português no formato:
-                    Frente: [pergunta]
-                    Verso: [resposta]
+                // Prompt dinâmico conforme o tipo de flashcard
+                val prompt = when (_uiState.value.selectedType) {
+                    FlashcardType.FRONT_AND_VERSO -> """
+                        Gere um flashcard no formato:
+                        Frente: [pergunta]
+                        Verso: [resposta]
+                        Tema: $topic
+                    """.trimIndent()
 
-                    Tema: $topic
-                """.trimIndent()
+                    FlashcardType.CLOZE -> """
+                        Gere um flashcard Cloze no formato:
+                        Texto: A capital do Brasil é {{c1::Brasília}} e foi fundada em {{c2::1960}}
+                        Respostas: Brasília, 1960
+                        Tema: $topic
+                    """.trimIndent()
+
+                    FlashcardType.TYPE_THE_ANSWER -> """
+                        Gere um flashcard de digitar resposta no formato:
+                        Pergunta: [texto]
+                        Resposta: [texto]
+                        Tema: $topic
+                    """.trimIndent()
+
+                    FlashcardType.MULTIPLE_CHOICE -> """
+                        Gere um flashcard de múltipla escolha no formato:
+                        Pergunta: [texto]
+                        Opções:
+                        A) ...
+                        B) ...
+                        C) ...
+                        D) ...
+                        Correta: [letra]
+                        Tema: $topic
+                    """.trimIndent()
+                }
 
                 val result = aiManager.generateText(AIRequest(prompt = prompt))
 
                 when (result) {
                     is AIResult.Success -> {
                         val content = result.data.content
-                        val front = Regex("Frente:(.*)").find(content)?.groupValues?.get(1)?.trim()
-                            ?: "Frente não encontrada"
-                        val back = Regex("Verso:(.*)").find(content)?.groupValues?.get(1)?.trim()
-                            ?: "Verso não encontrada"
 
-                        _uiState.update {
-                            it.copy(
-                                frontContent = front,
-                                backContent = back,
-                                isLoading = false
-                            )
+                        when (_uiState.value.selectedType) {
+                            FlashcardType.FRONT_AND_VERSO -> {
+                                val front = Regex("Frente:(.*)").find(content)?.groupValues?.get(1)?.trim()
+                                    ?: "Frente não encontrada"
+                                val back = Regex("Verso:(.*)").find(content)?.groupValues?.get(1)?.trim()
+                                    ?: "Verso não encontrada"
+                                _uiState.update {
+                                    it.copy(frontContent = front, backContent = back, isLoading = false)
+                                }
+                            }
+
+                            FlashcardType.CLOZE -> {
+                                val text = Regex("Texto:(.*)").find(content)?.groupValues?.get(1)?.trim() ?: ""
+                                val answers = Regex("Respostas:(.*)").find(content)?.groupValues?.get(1)
+                                    ?.split(",")?.map { it.trim() } ?: emptyList()
+                                _uiState.update {
+                                    it.copy(clozeContent = text, clozeAnswers = answers, isLoading = false)
+                                }
+                            }
+
+                            FlashcardType.TYPE_THE_ANSWER -> {
+                                val question = Regex("Pergunta:(.*)").find(content)?.groupValues?.get(1)?.trim() ?: ""
+                                val answer = Regex("Resposta:(.*)").find(content)?.groupValues?.get(1)?.trim() ?: ""
+                                _uiState.update {
+                                    it.copy(
+                                        typeAnswerQuestion = question,
+                                        typeAnswerCorrectAnswer = answer,
+                                        isLoading = false
+                                    )
+                                }
+                            }
+
+                            FlashcardType.MULTIPLE_CHOICE -> {
+                                val question = Regex("Pergunta:(.*)").find(content)?.groupValues?.get(1)?.trim() ?: ""
+                                val options = Regex("[A-D]\\) (.*)").findAll(content).map { it.groupValues[1].trim() }.toList()
+                                val correctLetter = Regex("Correta:(.*)").find(content)?.groupValues?.get(1)?.trim()?.uppercase()
+                                val correctIndex = when (correctLetter) {
+                                    "A" -> 0; "B" -> 1; "C" -> 2; "D" -> 3
+                                    else -> 0
+                                }
+                                _uiState.update {
+                                    it.copy(
+                                        multipleChoiceQuestion = question,
+                                        multipleChoiceOptions = if (options.isNotEmpty()) options else listOf("", "", "", ""),
+                                        correctAnswerIndex = correctIndex,
+                                        isLoading = false
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -211,10 +278,10 @@ class AddEditFlashcardViewModel(
             deckId = deckId,
             type = FlashcardType.MULTIPLE_CHOICE,
             frontContent = state.multipleChoiceQuestion,
-            backContent = state.multipleChoiceOptions[state.correctAnswerIndex],
+            backContent = state.multipleChoiceOptions.getOrNull(state.correctAnswerIndex) ?: "",
             multipleChoiceQuestion = state.multipleChoiceQuestion,
             multipleChoiceOptions = state.multipleChoiceOptions,
-            correctAnswer = state.multipleChoiceOptions[state.correctAnswerIndex],
+            correctAnswer = state.multipleChoiceOptions.getOrNull(state.correctAnswerIndex) ?: "",
             correctAnswerIndex = state.correctAnswerIndex,
             explanation = state.explanation.ifEmpty { null },
             tags = parseTags(state.tags),
